@@ -1,0 +1,8 @@
+datasets/
+package/
+tests/
+notebooks/
+.git/
+.pytest_cache/
+venv/
+logs/

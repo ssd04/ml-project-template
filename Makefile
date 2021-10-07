@@ -56,3 +56,30 @@ FORCE:
 
 clean:
 	rm -rf $(venv_name)
+
+
+# ##############################
+# Python - Docker
+# ##############################
+
+image = "ml-model"
+image_tag = $(shell docker images --format "{{.Tag}}" $(image) | head -n 1)
+image_tag = "latest"
+
+dockerfile = Dockerfile
+
+docker-build:
+	docker build \
+		-t ${image}:${image_tag} \
+		-f ${dockerfile} \
+		.
+
+operation = "learn"
+
+docker-run:
+	time docker run -it --rm \
+		--network "host" \
+		-v ${PWD}:/app \
+		-e LOCAL_DEV='true' \
+		${image}:${image_tag} \
+		python -W ignore $(run_script)

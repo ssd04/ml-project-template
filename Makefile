@@ -39,9 +39,6 @@ configure:
 install: venv
 	$(python) -m pip install -r $(deps);
 
-pum:
-	$(local_python) $(pum_script) -p $(aws_profile)
-
 run: venv
 	time $(python) -W ignore $(run_script)
 
@@ -83,3 +80,59 @@ docker-run:
 		-e LOCAL_DEV='true' \
 		${image}:${image_tag} \
 		python -W ignore $(run_script)
+
+
+# ##############################
+# AWS
+# ##############################
+.PHONY: local-ecr-login local-ecr-push pum
+
+aws_profile = "<< profile name >>"
+export AWS_PROFILE := $(aws_profile)
+aws_account_id = $(shell export AWS_PROFILE; aws sts get-caller-identity | jq -r '.Account')
+aws_region = eu-west-1
+
+pum_script = ~/bin/pum-aws.py
+
+pum:
+	$(local_python) $(pum_script) -p $(aws_profile)
+
+local-ecr-login:
+	aws ecr get-login-password \
+		--region $(aws_region) \
+		| docker login \
+		--username AWS --password-stdin \
+		$(aws_account_id).dkr.ecr.$(aws_region).amazonaws.com
+
+local-ecr-push:
+	docker tag $(image):$(image_tag) $(aws_account_id).dkr.ecr.$(aws_region).amazonaws.com/$(image):$(image_tag)
+	docker push $(aws_account_id).dkr.ecr.$(aws_region).amazonaws.com/$(image):$(image_tag)
+	docker rmi $(aws_account_id).dkr.ecr.$(aws_region).amazonaws.com/$(image):$(image_tag)
+
+# Lambda
+#
+.PHONY: lambda_install lambda_build lambda_run lambda_push lambda_clean
+
+name = "<< name >>"
+S3_BUCKET =
+S3_KEY = 
+
+lambda_install:
+	pip3 install -r requirements.txt --system --target ./package
+	cd package && zip -r9 ../$(name).zip *
+
+lambda_build:
+	zip -g $(name).zip src/
+
+lambda_run:
+	aws lambda invoke --function-name $(name) out --log-type Tail --query 'LogResult' --output text |  base64 -d
+
+lambda_push: build
+	aws lambda update-function-code --function-name $(name) --zip-file fileb://$(name).zip
+
+lambda_push-s3:
+	aws s3 cp $(name).zip s3://$(S3_BUCKET)
+	aws lambda update-function-code --function-name $(name) --s3-bucket $(S3_BUCKET) --s3-key $(S3_KEY) --publish
+
+lambda_clean:
+	rm -rf package

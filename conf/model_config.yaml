@@ -1,0 +1,49 @@
+---
+name:
+    value: "classification"
+
+label_column:
+    value: "<< value >>"
+db_columns:
+    categorical:
+        value:
+            - "<< column >>"
+    numerical:
+      value:
+          - "<< column >>"
+    description: List of columns to be selected
+eval_metric:
+    value: "<< metric >>"
+    description: Evaluation metric for the training model
+
+sklearn_models:
+    description: Config variables for sklearn models. Each key/value is according to the sklearn API
+    xgboost: 
+        objective: 'binary:logistic'
+        use_label_encoder: true
+        base_score: null
+        booster: null
+        colsample_bylevel: null
+        colsample_bynode: null
+        colsample_bytree: null
+        gamma: null
+        gpu_id: null
+        importance_type: 'gain'
+        interaction_constraints: null
+        learning_rate: null
+        max_delta_step: null
+        max_depth: null
+        min_child_weight: null
+        missing: .nan
+        monotone_constraints: null
+        n_estimators: 100
+        n_jobs: null
+        num_parallel_tree: null
+        random_state: null
+        reg_alpha: null
+        reg_lambda: null
+        scale_pos_weight: null
+        subsample: null
+        tree_method: null
+        validate_parameters: null
+        verbosity: null

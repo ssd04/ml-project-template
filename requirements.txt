@@ -1,0 +1,10 @@
+numpy
+pandas
+pytest
+scikit-learn
+sklearn
+xgboost
+matplotlib
+pyyaml
+loguru
+joblib

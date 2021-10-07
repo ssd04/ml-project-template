@@ -141,6 +141,6 @@ cython_debug/
 package/
 *.zip
 datasets/
-logs/
+logs/*.log
 notebooks/*
 !notebooks/*.py

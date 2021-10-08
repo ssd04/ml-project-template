@@ -83,6 +83,21 @@ docker-run:
 
 
 # ##############################
+# Jupyter Notebook
+# ##############################
+notebook:
+	jupyter lab notebooks/ > /tmp/jupyterlab.log 2>&1 &
+
+notebook_save:
+	jupytext --to py notebooks/prediction_models_analysis.ipynb
+	jupytext --to py notebooks/dataset_analysis.ipynb
+
+notebook_load:
+	jupytext --to notebook notebooks/prediction_models_analysis.py
+	jupytext --to notebook notebooks/dataset_analysis.py
+
+
+# ##############################
 # AWS
 # ##############################
 .PHONY: local-ecr-login local-ecr-push pum
